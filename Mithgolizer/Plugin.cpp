@@ -35,7 +35,7 @@ extern "C" __declspec(dllexport) const MUUID interfaces[] = { MIID_LAST };
 
 extern "C" __declspec(dllexport) int Load()
 {
-	Core.Initialize();
+	Core.Initialize(libraryInstance);
 	return 0;
 }
 

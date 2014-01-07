@@ -1,4 +1,3 @@
-#include <tchar.h>
 #include <Windows.h>
 
 #include <newpluginapi.h>
@@ -10,7 +9,7 @@ namespace Mithgolizer
 	public:
 		PluginCore(const PLUGININFOEX &pluginInfo);
 
-		void Initialize();
+		void Initialize(HINSTANCE moduleInstance);
 		void Deinitialize();
 
 	private:
@@ -20,5 +19,6 @@ namespace Mithgolizer
 		void BanUser();
 
 		const PLUGININFOEX &_pluginInfo;
+		HINSTANCE _moduleInstance;
 	};
 }

@@ -80,11 +80,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="InputDialog.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BanInfo.hpp" />
+    <ClInclude Include="InputDialog.hpp" />
     <ClInclude Include="PluginCore.hpp" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
