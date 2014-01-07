@@ -15,7 +15,7 @@ static INT_PTR CALLBACK DialogProc(HWND dialog, UINT message, WPARAM wParam, LPA
 	{
 	case WM_INITDIALOG:
 		TranslateDialogDefault(dialog);
-		SetWindowLongPtr(dialog, GWLP_USERDATA, lParam); // initial parameter
+		SetWindowLongPtrW(dialog, GWLP_USERDATA, lParam); // initial parameter
 		break;
 
 	case WM_COMMAND:
