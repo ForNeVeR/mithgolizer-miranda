@@ -3,7 +3,7 @@
 PLUGININFOEX pluginInfo =
 {
 	sizeof(PLUGININFOEX),
-	"Mothgolizer",
+	"Mithgolizer",
 	PLUGIN_MAKE_VERSION(0, 0, 0, 1),
 	"Mass ban plugin.",
 	"F. von Never",
