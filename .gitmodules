@@ -1,0 +1,3 @@
+[submodule "miranda-ng"]
+	path = miranda-ng
+	url = https://github.com/ForNeVeR/miranda-ng.git
