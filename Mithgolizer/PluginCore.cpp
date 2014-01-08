@@ -1,6 +1,9 @@
 #include "PluginCore.hpp"
 
+#include <array>
+#include <codecvt>
 #include <exception>
+#include <locale>
 
 #include <m_clist.h>
 #include <m_contacts.h>
@@ -16,6 +19,7 @@ using namespace Mithgolizer;
 
 const auto BanServiceName = "Mithgolizer/Ban";
 const auto ChatRoomSettingName = "ChatRoom";
+const auto ChatRoomIdSettingName = "ChatRoomID";
 const auto MyNickSettingName = "MyNick";
 
 PluginCore::PluginCore(const PLUGININFOEX &pluginInfo)
@@ -78,11 +82,28 @@ void PluginCore::BanUser(const BanInfo &banInfo, HANDLE conference)
 {
 	auto contactInfo = CONTACTINFO();
 	contactInfo.hContact = conference;
-	contactInfo.dwFlag = CNF_UNIQUEID | CNF_UNICODE;
+	contactInfo.dwFlag = CNF_NICK | CNF_UNICODE;
 
-	if (CallService(MS_CONTACT_GETCONTACTINFO, 0, reinterpret_cast<LPARAM>(&contactInfo)))
+	CallService(MS_CONTACT_GETCONTACTINFO, 0, reinterpret_cast<LPARAM>(&contactInfo));
+	
+	auto buffer = array<char, 256>();
+	
+	auto value = DBVARIANT();
+	value.type = DBVT_ASCIIZ;
+	value.pszVal = buffer.data();
+	value.cchVal = buffer.size();
+
+	auto dbcgs = DBCONTACTGETSETTING();
+	dbcgs.szModule = contactInfo.szProto;
+	dbcgs.szSetting = ChatRoomIdSettingName;
+	dbcgs.pValue = &value;
+
+	if (CallService(
+		MS_DB_CONTACT_GETSETTINGSTATIC,
+		reinterpret_cast<WPARAM>(conference),
+		reinterpret_cast<LPARAM>(&dbcgs)))
 	{
-		throw std::exception("Contact not found");
+		throw std::exception("Cannot get chatroom id");
 	}
 
 	auto jabber = getJabberApi(contactInfo.szProto);
@@ -92,21 +113,19 @@ void PluginCore::BanUser(const BanInfo &banInfo, HANDLE conference)
 		return;
 	}
 
-	if (contactInfo.type != CNFT_ASCIIZ)
-	{
-		throw std::exception("Unknown contact ID type");
-	}
-
 	auto xmlApi = XML_API();
 	if (!mir_getXI(&xmlApi))
 	{
 		throw std::exception("Cannot get XML API");
 	}
 
+	auto id = wstring(L"mir_" + to_wstring(jabber->SerialNext()));
+	auto to = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(buffer.data());
+
 	auto node = xmlApi.createNode(L"iq", L"", 0);
 	xmlApi.addAttr(node, L"type", L"set");
-	xmlApi.addAttr(node, L"to", contactInfo.pszVal);
-	xmlApi.addAttr(node, L"id", to_wstring(jabber->SerialNext()).c_str());
+	xmlApi.addAttr(node, L"to", to.c_str());
+	xmlApi.addAttr(node, L"id", id.c_str());
 	
 	auto query = xmlApi.addChild(node, L"query", L"");
 	xmlApi.addAttr(query, L"xmlns", L"http://jabber.org/protocol/muc#admin");
@@ -129,11 +148,9 @@ vector<HANDLE> PluginCore::GetActiveConferences()
 	{
 		auto contactInfo = CONTACTINFO();
 		contactInfo.hContact = handle;
+		contactInfo.dwFlag = CNF_NICK | CNF_UNICODE;
 		
-		if (CallService(MS_CONTACT_GETCONTACTINFO, 0, reinterpret_cast<LPARAM>(&contactInfo)))
-		{
-			throw std::exception("Contact not found");
-		}
+		CallService(MS_CONTACT_GETCONTACTINFO, 0, reinterpret_cast<LPARAM>(&contactInfo));
 
 		auto value = DBVARIANT();
 		auto dbcgs = DBCONTACTGETSETTING();
@@ -146,10 +163,12 @@ vector<HANDLE> PluginCore::GetActiveConferences()
 			reinterpret_cast<WPARAM>(handle),
 			reinterpret_cast<LPARAM>(&dbcgs)))
 		{
+			handle = db_find_next(handle);
 			continue;
 		}
 
 		result.push_back(handle);
+		handle = db_find_next(handle);
 	}
 
 	return result;
