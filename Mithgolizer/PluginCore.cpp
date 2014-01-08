@@ -132,7 +132,7 @@ void PluginCore::BanUser(const BanInfo &banInfo, HANDLE conference)
 
 	auto item = xmlApi.addChild(query, L"item", L"");
 	xmlApi.addAttr(item, L"jid", banInfo.Jid.c_str());
-	xmlApi.addAttr(item, L"affilation", L"outcast");
+	xmlApi.addAttr(item, L"affiliation", L"outcast");
 
 	auto reason = xmlApi.addChild(item, L"reason", banInfo.Reason.c_str());
 
