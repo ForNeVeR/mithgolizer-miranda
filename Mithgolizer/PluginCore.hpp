@@ -1,6 +1,12 @@
+#pragma once
+
+#include <vector>
+
 #include <Windows.h>
 
 #include <newpluginapi.h>
+
+#include "BanInfo.hpp"
 
 namespace Mithgolizer
 {
@@ -17,6 +23,9 @@ namespace Mithgolizer
 		void InitializeMainMenu();
 
 		void BanUser();
+		void BanUser(const BanInfo &banInfo, HANDLE conference);
+
+		std::vector<HANDLE> GetActiveConferences();
 
 		const PLUGININFOEX &_pluginInfo;
 		HINSTANCE _moduleInstance;
