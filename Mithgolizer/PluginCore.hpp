@@ -1,12 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include <memory>
 
 #include <Windows.h>
 
 #include <newpluginapi.h>
+#include <m_protocols.h>
 
-#include "BanInfo.hpp"
+#include "AccountService.hpp"
 
 namespace Mithgolizer
 {
@@ -18,16 +21,16 @@ namespace Mithgolizer
 		void Initialize(HINSTANCE moduleInstance);
 		void Deinitialize();
 
+		HINSTANCE ModuleInstance() const;
+
 	private:
 		void InitializeLangpack();
-		void InitializeMainMenu();
-
-		void BanUser();
-		void BanUser(const BanInfo &banInfo, HANDLE conference);
-
-		std::vector<HANDLE> GetActiveConferences();
+		void InitializeServices();
+		void InitializeAccountService(const PROTOACCOUNT &account);
 
 		const PLUGININFOEX &_pluginInfo;
 		HINSTANCE _moduleInstance;
+
+		std::vector<std::unique_ptr<AccountService>> _accountServices;
 	};
 }

@@ -172,11 +172,13 @@ copy /y $(OutputPath)\*.pdb T:\Temp\Miranda\Plugins</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AccountService.cpp" />
     <ClCompile Include="InputDialog.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AccountService.hpp" />
     <ClInclude Include="BanInfo.hpp" />
     <ClInclude Include="InputDialog.hpp" />
     <ClInclude Include="PluginCore.hpp" />
