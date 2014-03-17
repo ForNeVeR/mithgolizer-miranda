@@ -5,6 +5,8 @@
 
 #include <Windows.h>
 
+#include <newpluginapi.h>
+
 #include "BanInfo.hpp"
 
 namespace Mithgolizer
@@ -22,9 +24,9 @@ namespace Mithgolizer
 		void InitializeMenu();
 
 		void BanUser();
-		void BanUser(const BanInfo &banInfo, HANDLE conference);
+		void BanUser(const BanInfo &banInfo, MCONTACT conference);
 
-		std::vector<HANDLE> GetActiveConferences();
+		std::vector<MCONTACT> GetActiveConferences();
 
 		const PluginCore &_core;
 		const std::string _accountName;

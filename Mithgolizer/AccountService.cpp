@@ -82,7 +82,7 @@ void AccountService::BanUser()
 	}
 }
 
-void AccountService::BanUser(const BanInfo &banInfo, HANDLE conference)
+void AccountService::BanUser(const BanInfo &banInfo, MCONTACT conference)
 {
 	auto contactInfo = CONTACTINFO();
 	contactInfo.hContact = conference;
@@ -92,20 +92,12 @@ void AccountService::BanUser(const BanInfo &banInfo, HANDLE conference)
 
 	auto buffer = array<char, 256>();
 
-	auto value = DBVARIANT();
-	value.type = DBVT_ASCIIZ;
-	value.pszVal = buffer.data();
-	value.cchVal = buffer.size();
-
-	auto dbcgs = DBCONTACTGETSETTING();
-	dbcgs.szModule = contactInfo.szProto;
-	dbcgs.szSetting = ChatRoomIdSettingName;
-	dbcgs.pValue = &value;
-
-	if (CallService(
-		MS_DB_CONTACT_GETSETTINGSTATIC,
-		reinterpret_cast<WPARAM>(conference),
-		reinterpret_cast<LPARAM>(&dbcgs)))
+	if (db_get_static(
+		conference,
+		contactInfo.szProto,
+		ChatRoomIdSettingName,
+		buffer.data(),
+		buffer.size()))
 	{
 		throw std::exception("Cannot get chatroom id");
 	}
@@ -142,9 +134,9 @@ void AccountService::BanUser(const BanInfo &banInfo, HANDLE conference)
 	jabber->SendXmlNode(node);
 }
 
-vector<HANDLE> AccountService::GetActiveConferences()
+vector<MCONTACT> AccountService::GetActiveConferences()
 {
-	auto result = vector<HANDLE>();
+	auto result = vector<MCONTACT>();
 
 	auto handle = db_find_first();
 	while (handle != NULL)
@@ -168,10 +160,7 @@ vector<HANDLE> AccountService::GetActiveConferences()
 		dbcgs.szSetting = ChatRoomSettingName;
 		dbcgs.pValue = &value;
 
-		if (CallService(
-			MS_DB_CONTACT_GETSETTINGSTATIC,
-			reinterpret_cast<WPARAM>(handle),
-			reinterpret_cast<LPARAM>(&dbcgs)))
+		if (db_get_static(handle, contactInfo.szProto, ChatRoomSettingName, nullptr, 0))
 		{
 			handle = db_find_next(handle);
 			continue;
